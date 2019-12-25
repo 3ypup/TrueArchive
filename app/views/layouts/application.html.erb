@@ -1,19 +1,125 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Archive</title>
+    <title>
+      <hr/>
+█████████████████████<br/>
+█───███────████───███<br/>
+█─█████─██──████─████<br/>
+█───███────█████─████<br/>
+█─█████─██──████─████<br/>
+█─███─█────██─█───█─█<br/>
+█████████████████████<br/>
+<br/>
+</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
   
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.10.0/js/jquery.terminal.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.10.0/css/jquery.terminal.min.css" rel="stylesheet"/>
+  <!--<link rel="stylesheet" href="/terminal.css">-->
+
+
+meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<title>FBI TERMINAL</title>
+<link rel="stylesheet" media="all" href="terminal.css">
+<link rel="chrome-application-definition" href="manifest.json">
   </head>
 
   <body>
+
+
     <%= yield %>
+<aside class="help hidden">
+  <section>
+    <div>
+      <span onclick="toggleHelp()" id="close">x</span>
+      <h2>Keyboard shortcuts</h2>
+      <div class="shortcuts">
+        <p><strong>&lt;ctrl&gt; + s</strong> : Toggle CRT monitor flicker effect</p>
+        <p><strong>&lt;esc&gt;</strong> : toggle this help menu</p>
+      </div>
+    </div>
+
+  </section>
+
+</aside>
+
+
+<pre id="contents"></pre>
+
+
+<!--<div class="crt top"></div>-->
+<div class="interlace"></div>
+<div id="container"></div>
+<!--<div class="crt bottom"></div>-->
+
+<script src="terminal.js"></script>
+<script>
+function toggleHelp() {
+  document.querySelector('.help').classList.toggle('hidden');
+  document.body.classList.toggle('dim');
+}
+
+(function() {
+  var term = new Terminal('container');
+  term.initFS(false, 1024 * 1024);
+
+  if (document.location.hash) {
+    var theme = document.location.hash.substring(1).split('=')[1];
+    term.setTheme(theme);
+  } else if (localStorage.theme) {
+    term.setTheme(localStorage.theme);
+  }
+
+  document.body.addEventListener('keydown', function(e) {
+    if (e.keyCode == 27) { // Esc
+      toggleHelp();
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, false);
+
+  // Setup the DnD listeners for file drop.
+  document.body.addEventListener('dragenter', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.classList.add('dropping');
+  }, false);
+
+  document.body.addEventListener('dragover', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+  }, false);
+
+  document.body.addEventListener('dragleave', function(e) {
+   this.classList.remove('dropping');
+  }, false);
+  
+  document.body.addEventListener('drop', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.classList.remove('dropping');
+    term.addDroppedFiles(e.dataTransfer.files);
+    term.output('<div>File(s) added!</div>');
+  }, false);
+})();
+</script>
+<script>
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23384572-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+    <script src="/terminal.js"></script>
   </body>
 </html>
